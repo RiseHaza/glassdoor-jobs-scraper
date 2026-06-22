@@ -1,206 +1,245 @@
-[Glassdoor Jobs Scraper](https://apify.com/parseforge/glassdoor-jobs-scraper?fpr=data)
+[Glassdoor Jobs Scraper](https://apify.com/kaix/glassdoor-jobs-scraper?fpr=data)
 
-![ParseForge Banner](https://images.apifyusercontent.com/P72M168tNYRUI4-For2DJl7v_jfpX5sdZNMVVrywgJE/w:1800/cb:1/aHR0cHM6Ly9hcGlmeS11cGxvYWRzLXByb2QuczMudXMtZWFzdC0xLmFtYXpvbmF3cy5jb20vNVU4T0lMOFNwUzlQY2pQODRWZzBRanJINkpGWTFEVUFfaW1hZ2UucG5n.webp)
+# Glassdoor Jobs Scraper
 
-# 🚀 Glassdoor Jobs Scraper
+Scrape job listings from Glassdoor by keyword and location, or from any employer page or search URL. Full job descriptions, salary data, employer profiles with CEO and ratings, geo coordinates, skills, and education requirements. Structured JSON output.
 
-> 🚀 **Scrape job listings from Glassdoor. Search by keyword, location, or company name. Extracts job title, salary, description, skills, location with coordinates, company rating, logo, apply URL, remote wo**.
+## Why use this scraper?
 
-> 🕒 **Last updated:** 2026-04-24 · **📊 12+ fields** per record · **🔍 6 filters** · **🚫 No auth** required
+- Full HTML job description, not just a snippet
+- Salary range (min/median/max), currency, period, and source (employer-provided vs Glassdoor estimate)
+- Employer profile: size, revenue, HQ, industry, CEO, year founded, website
+- 8 employer rating categories: overall, career opportunities, comp & benefits, culture, management, work-life balance, CEO approval, recommend to friend
+- Geo coordinates (lat/lng), city, state, country for every listing
+- Extracted skills, education requirements, years of experience
+- Job type, remote work type, easy apply flag, expired status
+- Search by keyword and location, or paste any employer/search URL
+- Filter by date posted, job type, seniority, remote work, salary, company size, and more
 
-Scrape job listings from Glassdoor. Search by keyword, location, or company name. Extracts job title, salary, description, skills, location with coordinates, company rating, logo, apply URL, remote work type, education and experience requirements.
+## Use cases
 
-Supports pagination and full job detail enrichment.
+- Build a job board or aggregator with rich structured data
+- Track open positions at specific companies over time
+- Analyze salary ranges by role, location, or company
+- Feed job descriptions into NLP pipelines for skill extraction
+- Compare employer profiles and ratings across companies
 
----
+## How to use
 
-## 📋 What the Glassdoor Jobs Scraper does
+### Search by keyword + location
 
-- 🎯 **Targeted filtering.** Use the input schema to narrow results to what you need.
-- 📦 **Structured output.** Clean, typed records with every field documented.
-- 🔄 **Live data.** Every run fetches fresh data at runtime, no cached responses.
-- 🔌 **Easy integration.** Consume via Apify API, webhooks, or direct dataset export.
-- 📊 **Scale on demand.** Run once or run on a schedule, the same way.
+```
+{
+  "keyword": "Software Engineer",
+  "location": "San Francisco, CA"
+}
+```
 
-> 💡 **Why it matters:** teams that rely on this source no longer need to babysit a custom crawler. Set up your filters once, get updated data on demand.
+### Search with filters
 
----
+```
+{
+  "keyword": "Software Engineer",
+  "location": "San Francisco, CA",
+  "fromAge": 7,
+  "jobType": ["fulltime"],
+  "remoteWorkType": ["1"],
+  "seniorityType": ["midseniorlevel"],
+  "minSalary": 100000,
+  "maxJobs": 50
+}
+```
 
-## ⚙️ Input
+### Search by keyword only (all locations)
 
-Send a JSON body with any of the documented input fields. All fields are optional unless the schema marks them required.
+```
+{
+  "keyword": "Data Scientist",
+  "maxJobs": 50
+}
+```
 
-| Field | Type | Name | Description |
+### Scrape a specific company
+
+```
+{
+  "urls": ["https://www.glassdoor.com/Jobs/Google-Jobs-E9079.htm"]
+}
+```
+
+### Scrape multiple companies
+
+```
+{
+  "urls": [
+    "https://www.glassdoor.com/Jobs/Google-Jobs-E9079.htm",
+    "https://www.glassdoor.com/Jobs/Meta-Jobs-E40772.htm"
+  ],
+  "maxJobs": 50
+}
+```
+
+### Scrape a search results URL
+
+```
+{
+  "urls": [
+    "https://www.glassdoor.com/Job/san-francisco-software-engineer-jobs-SRCH_IL.0,13_IC1147401_KO14,31.htm"
+  ]
+}
+```
+
+### Combine keyword + URL targets
+
+```
+{
+  "keyword": "Product Manager",
+  "location": "New York",
+  "urls": ["https://www.glassdoor.com/Jobs/Google-Jobs-E9079.htm"],
+  "maxJobs": 30
+}
+```
+
+## Input
+
+**Search:**
+
+| Parameter | Type | Default | Description |
 | --- | --- | --- | --- |
-| `startUrl` | string | Start URL | Direct Glassdoor job search URL. Use this OR the keyword/company fields below. |
-| `maxItems` | integer | Max Items | Free users: Limited to 100. Paid users: Optional, max 1,000,000 |
-| `keyword` | string | Job Keyword | Search keyword for job listings. Example: software engineer, data analyst, product manager |
-| `location` | string | Location | Location filter for job search. Example: New York, San Francisco, London |
-| `companyName` | string | Company Name | Search for jobs at a specific company. Example: Google, Apple, Microsoft |
-| `includeJobDetails` | boolean | Include Job Descriptions | Fetch full job descriptions from detail pages. Slower but provides complete job information. |
-| `proxyConfiguration` | object | Proxy Configuration | Residential proxies are required for Glassdoor. |
-
-> ⚠️ **Good to Know:** free users are limited to 10 items per run for preview purposes. Upgrade to Apify paid plans for higher limits.
-
----
-
-## 📊 Output
-
-The dataset returns one structured record per item. Each record includes identifiers, descriptive fields, and a link back to the source. Consume the dataset as JSON, CSV, Excel, XML, or RSS via the Apify console or API.
-
----
-
-## 💼 Business use cases
-
-| ### 📊 Analysts and researchers     - Build longitudinal datasets for trend analysis - Benchmark across sources and regions - Feed BI tools and custom dashboards - Enrich existing pipelines with fresh data | ### 🛠️ Engineers and operators     - Power internal APIs without building your own crawler - Schedule weekly deltas to a database - Plug into existing ETL stacks via Apify webhooks - Skip the infra work, get clean structured output |
-| --- | --- |
-| ### 🎯 Growth and sales teams     - Discover new leads and accounts at scale - Monitor competitor coverage and positioning - Build outbound lists keyed to real signals - Prioritize outreach with structured context | ### 🧪 Product and data teams     - Prototype features against live data - A/B test ranking or matching logic - Train or evaluate domain-specific models - Validate hypotheses before committing engineering |
-
----
-
-## 🌟 Beyond business use cases
-
-Data like this powers more than commercial workflows. The same structured records support research, education, civic projects, and personal initiatives.
-
-| ### 🎓 Research and academia     - Empirical datasets for papers, thesis work, and coursework - Longitudinal studies tracking changes across snapshots - Reproducible research with cited, versioned data pulls - Classroom exercises on data analysis and ethical scraping | ### 🎨 Personal and creative     - Side projects, portfolio demos, and indie app launches - Data visualizations, dashboards, and infographics - Content research for bloggers, YouTubers, and podcasters - Hobbyist collections and personal trackers |
-| --- | --- |
-| ### 🤝 Non-profit and civic     - Transparency reporting and accountability projects - Advocacy campaigns backed by public-interest data - Community-run databases for local issues - Investigative journalism on public records | ### 🧪 Experimentation     - Prototype AI and machine-learning pipelines with real data - Validate product-market hypotheses before engineering spend - Train small domain-specific models on niche corpora - Test dashboard concepts with live input |
-
----
-
-## ✨ Why choose this Actor
-
-|  | Capability |
-| --- | --- |
-| 🎯 | **Built for the job.** Scoped specifically to this data source so you skip the parser engineering entirely. |
-| 🔖 | **Structured output.** Clean, typed fields ready for analysis, dashboards, or downstream pipelines. |
-| ⚡ | **Fast.** Optimized request patterns return results in seconds, not minutes. |
-| 🔁 | **Always fresh.** Every run pulls live data, so the dataset reflects the source as of run time. |
-| 🌐 | **No infra to manage.** Apify handles proxies, retries, scaling, scheduling, and storage. |
-| 🛡️ | **Reliable.** Battle-tested across many runs and edge cases, with graceful error handling. |
-| 🚫 | **No code required.** Configure in the UI, run from CLI, schedule via cron, or call from any language with the Apify SDK. |
-
-> 📊 Production-grade structured data without the engineering overhead of building and maintaining your own scraper.
-
----
-
-## 📈 How it compares to alternatives
-
-| Approach | Cost | Coverage | Refresh | Filters | Setup |
-| --- | --- | --- | --- | --- | --- |
-| **⭐ Glassdoor Jobs Scraper** *(this Actor)* | $5 free credit, then pay-per-use | Full source coverage | **Live per run** | Source-native filters supported | ⚡ 2 min |
-| Build your own scraper | Engineering hours | Full once built | Whenever you maintain it | Custom code | 🐢 Days to weeks |
-| Paid managed APIs | $$$ monthly | Vendor-defined | Live | Vendor-defined | ⏳ Hours |
-| Third-party data dumps | Varies | Subset, often stale | Periodic | None | 🕒 Variable |
-
-Pick this Actor when you want broad coverage, server-side filtering, and no pipeline maintenance.
-
----
-
-## 🚀 How to use
-
-1. 📝 **Create a free account.** Sign up at [console.apify.com](https://console.apify.com/sign-up?fpr=vmoqkp) to get $5 in credits.
-2. 🔍 **Open the actor.** Paste your filters into the input schema in the Apify console.
-3. ▶️ **Click Start.** Wait a few seconds for the first records to land.
-4. 📤 **Export the data.** Download JSON/CSV or pipe to webhooks, Google Sheets, or Zapier.
-5. 🔄 **Schedule it.** Apify Schedules let you rerun on a cron cadence for free.
-
-> ⏱️ Total time to first data: about 60 seconds.
-
----
-
-## 🤖 Ask an AI assistant about this scraper
-
-Open a ready-to-send prompt about this ParseForge actor in the AI of your choice:
-
-- 💬 [**ChatGPT**](https://chat.openai.com/?q=How%20do%20I%20use%20the%20GLASSDOOR%20JOBS%20SCRAPER%20Scraper%20by%20ParseForge%20on%20Apify%3F%20Show%20me%20input%20examples%2C%20output%20fields%2C%20common%20use%20cases%2C%20and%20how%20to%20integrate%20it%20into%20a%20workflow.)
-- 🧠 [**Claude**](https://claude.ai/new?q=How%20do%20I%20use%20the%20GLASSDOOR%20JOBS%20SCRAPER%20Scraper%20by%20ParseForge%20on%20Apify%3F%20Show%20me%20input%20examples%2C%20output%20fields%2C%20common%20use%20cases%2C%20and%20how%20to%20integrate%20it%20into%20a%20workflow.)
-- 🔍 [**Perplexity**](https://perplexity.ai/search?q=How%20do%20I%20use%20the%20GLASSDOOR%20JOBS%20SCRAPER%20Scraper%20by%20ParseForge%20on%20Apify%3F%20Show%20me%20input%20examples%2C%20output%20fields%2C%20common%20use%20cases%2C%20and%20how%20to%20integrate%20it%20into%20a%20workflow.)
-- 🅒 [**Copilot**](https://copilot.microsoft.com/?q=How%20do%20I%20use%20the%20GLASSDOOR%20JOBS%20SCRAPER%20Scraper%20by%20ParseForge%20on%20Apify%3F%20Show%20me%20input%20examples%2C%20output%20fields%2C%20common%20use%20cases%2C%20and%20how%20to%20integrate%20it%20into%20a%20workflow.)
-
----
-
-## ❓ Frequently Asked Questions
-
-### 🔍 What does the Glassdoor Jobs do?
-
-Scrape job listings from Glassdoor. Search by keyword, location, or company name. Extracts job title, salary, description, skills, location with coordinates, company rating, logo, apply URL, remote work type, education and experience requirements. Supports pagination and full job. Pass your filters via the input schema and run the actor.
-
-### 🛠️ How do I get started?
-
-Open the actor in Apify, fill in the input fields, and click Start. The dataset appears on your run page within seconds.
-
-### 💰 How much does it cost?
-
-Free Apify users can run the actor and preview up to 10 records. Paid plans remove the preview cap. See the Apify pricing page for details.
-
-### 📅 How fresh is the data?
-
-Every run scrapes live from the source at runtime. No cached responses, no pre-loaded dumps. You get the snapshot visible to the source when the actor starts.
-
-### 🗂️ What filters are supported?
-
-The input schema exposes startUrl, keyword, location, companyName, includeJobDetails. Combine them to narrow results. If a filter is empty, the default ordering from the source is used.
-
-### 🔐 Do I need an API key, account, or authentication?
-
-No. The actor runs against public endpoints using Apify residential proxies. You just need your Apify account to launch the run.
-
-### 🧾 What fields are returned per record?
-
-Each record includes the primary identifiers, descriptive fields, URLs to the source page, and any structured data the source exposes. Exact fields depend on the source and are documented in the output schema.
-
-### ⚡ How fast is a run?
-
-Most runs return a first batch of records within a minute. Throughput depends on source rate limits and the number of filters stacked, not on Apify.
-
-### 📤 Can I export the dataset?
-
-Yes. Apify exposes the dataset as JSON, CSV, XML, Excel, or RSS via the UI or API. You can also stream new records into webhooks, Google Sheets, Airtable, and more.
-
-### 🧭 Can I schedule recurring runs?
-
-Yes. Apify Schedules let you run this actor on a cron cadence and deliver fresh data to your destination. No extra code is required.
-
-### 🛡️ Is scraping this source legal for commercial use?
-
-This actor only retrieves publicly available information. You are responsible for complying with the source website terms and any applicable privacy and competition rules in your jurisdiction.
-
-### 🤝 What if a run fails or returns fewer items than expected?
-
-Open the run log for the exact error. Most failures come from source rate limits or filter combinations with no matches. Retry with a broader filter or contact support via the Tally form below.
-
----
-
-## 🔌 Integrate with any app
-
-Connect the Glassdoor Jobs Scraper to cloud services via [Apify integrations](https://apify.com/integrations):
-
-- [**Make**](https://docs.apify.com/platform/integrations/make) - visual automation builder
-- [**Zapier**](https://docs.apify.com/platform/integrations/zapier) - 5000+ app connectors
-- [**Google Sheets**](https://docs.apify.com/platform/integrations/drive) - pipe rows directly
-- [**Airbyte**](https://docs.apify.com/platform/integrations/airbyte) - ingest into data warehouses
-- [**Slack**](https://docs.apify.com/platform/integrations/slack) - receive run alerts
-- [**HTTP webhooks**](https://docs.apify.com/platform/integrations/webhooks) - custom downstream
-
----
-
-## 🔗 Recommended Actors
-
-Pair the Glassdoor Jobs Scraper with related actors:
-
-- [**🌐 Website Content Crawler**](https://apify.com/parseforge/website-content-crawler) - crawl any page at scale
-- [**🔍 Google Search Scraper**](https://apify.com/parseforge/google-search-scraper) - harvest SERPs
-- [**📄 Article Extractor**](https://apify.com/parseforge/article-extractor) - extract clean article text
-- [**📊 Google Trends Scraper**](https://apify.com/parseforge/google-trends-scraper) - capture demand signals
-- [**📸 Screenshot URL**](https://apify.com/parseforge/screenshot-url) - render any page to image
-
-> 💡 **Pro Tip:** browse the complete [ParseForge collection](https://apify.com/parseforge) for more niche actors.
-
----
-
-**🆘 Need Help?** [**Open our contact form**](https://tally.so/r/BzdKgA)
-
----
-
-> ⚠️ **Disclaimer:** This actor retrieves data from publicly available sources. You are responsible for complying with the source website's terms of service and applicable laws in your jurisdiction. ParseForge is not affiliated with the data source.
+| **keyword** | string | — | Job title, skill, or company name |
+| **location** | string | — | City, state, or country |
+
+**Filters:**
+
+| Parameter | Type | Default | Description |
+| --- | --- | --- | --- |
+| **maxJobs** | number | 20 | Maximum results per target. Set to 0 for no limit. |
+| **fromAge** | number | any | Posted within 1, 3, 7, 14, or 30 days |
+| **jobType** | string[] | any | `fulltime`, `parttime`, `contract`, `internship`, `temporary` |
+| **seniorityType** | string[] | any | `entrylevel`, `midseniorlevel`, `director`, `executive` |
+| **remoteWorkType** | string[] | any | `1` (Remote), `2` (Hybrid), `3` (On-site) |
+| **easyApply** | boolean | false | Only Easy Apply jobs |
+| **minSalary** | number | — | Minimum annual salary (local currency) |
+| **maxSalary** | number | — | Maximum annual salary (local currency) |
+| **radius** | number | — | Search radius in miles: 5, 10, 15, 25, 50, 100 |
+| **employerSizes** | string[] | any | `1to50`, `51to200`, `201to500`, `501to1000`, `1001to5000`, `5001to10000`, `10001+` |
+| **postedBy** | string[] | any | `jobPoster` (Employer), `staffingAgency` (Staffing Agency) |
+
+> Filters apply to all targets (keyword search and URLs).
+
+**URL Lookup:**
+
+| Parameter | Type | Default | Description |
+| --- | --- | --- | --- |
+| **urls** | string[] | — | Glassdoor employer pages (`/Jobs/Google-Jobs-E9079.htm`) or search URLs. Optional if keyword is provided. |
+
+## Output
+
+Each job is a single JSON object:
+
+### Job profile
+
+```
+{
+  "jobId": 1010094160099,
+  "url": "https://www.glassdoor.com/job-listing/administrative-business-partner-ii-metro-data-centers-google-JV_IC1155091_KO0,53_KE54,60.htm?jl=1010094160099",
+  "profile": {
+    "title": "Administrative Business Partner II, Metro Data Centers",
+    "normalizedTitle": "hr business partner",
+    "description": "<div><h3 class=\"jobSectionHeader\"><b>Minimum qualifications:</b></h3><ul>...",
+    "descriptionSnippet": "Perform administrative tasks (including managing calendars, booking travel, expenses, and scheduling facilities or equipment), and planning, managing, and…",
+    "ageInDays": 13,
+    "discoverDate": "2026-04-08T00:00:00",
+    "expired": false,
+    "easyApply": false,
+    "jobType": ["Full-time"],
+    "remoteWorkTypes": [],
+    "skills": ["Expense management", "Facilities management", "Project management", "Calendar management", "Communication skills"],
+    "education": [],
+    "yearsOfExperience": "2"
+  }
+}
+```
+
+### Location
+
+```
+{
+  "location": {
+    "name": "Moncks Corner, SC",
+    "type": "C",
+    "city": "Moncks Corner, SC",
+    "state": "South Carolina",
+    "country": "United States",
+    "lat": 33.19583,
+    "lng": -80.01333
+  }
+}
+```
+
+### Compensation
+
+```
+{
+  "compensation": {
+    "salaryMin": 79000,
+    "salaryMax": 112000,
+    "salaryMedian": 95500,
+    "currency": "USD",
+    "period": "ANNUAL",
+    "source": "EMPLOYER_PROVIDED"
+  }
+}
+```
+
+### Employer
+
+```
+{
+  "employer": {
+    "id": 9079,
+    "name": "Google Inc.",
+    "shortName": "Google",
+    "logoUrl": "https://media.glassdoor.com/sql/9079/google-squarelogo-1441130773284.png",
+    "size": "10000+ Employees",
+    "sizeCategory": "GIANT",
+    "type": "Company - Public",
+    "revenue": "$10+ billion (USD)",
+    "yearFounded": 1998,
+    "headquarters": "Mountain View, CA",
+    "industry": "Internet & Web Services",
+    "sector": "Information Technology",
+    "website": "https://goo.gle/4ehVuXi",
+    "ceo": {
+      "name": "Sundar Pichai",
+      "photoUrl": "https://media.glassdoor.com/people/sql/9079/google-sundar-pichai.png"
+    },
+    "ratings": {
+      "overall": 4.4,
+      "careerOpportunities": 4.2,
+      "compensationAndBenefits": 4.5,
+      "cultureAndValues": 4.2,
+      "seniorManagement": 3.9,
+      "workLifeBalance": 4.2,
+      "ceoRating": 0.82,
+      "recommendToFriend": 0.87
+    }
+  }
+}
+```
+
+### Meta
+
+```
+{
+  "meta": {
+    "seoJobLink": "https://www.glassdoor.com/job-listing/administrative-business-partner-ii-metro-data-centers-google-JV_IC1155091_KO0,53_KE54,60.htm?jl=1010094160099",
+    "scrapedAt": "2026-04-22T10:55:07.341Z"
+  }
+}
+```
+
+## Limitations
+
+- Employer data (CEO, ratings, industry, etc.) is the same for all jobs at the same company.
+- `maxJobs` is per target, not total across all targets.
